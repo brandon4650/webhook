@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Discord Message Builder</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        /* Base Styles */
+        body {
+            background-color: #1a1b1e;
+            color: white;
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        /* Input Styles */
+        input, textarea, select {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            background-color: #40444b;
+            border: 1px solid #202225;
+            color: white;
+            border-radius: 4px;
+        }
+
+        /* Section Styles */
+        .section {
+            background-color: #2C2F33;
+            border: 1px solid #23272A;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+            position: relative;
+        }
+
+        /* Control Groups */
+        .control-group {
+            margin-bottom: 10px;
+            padding: 8px;
+            background: #23272A;
+            border-radius: 4px;
+        }
+
+        .control-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 12px;
+            color: #dcddde;
+        }
+
+        /* Color Controls */
+        .color-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .color-picker {
+            width: 40px;
+            height: 30px;
+            padding: 0;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .color-preset {
+            width: 25px;
+            height: 25px;
+            border-radius: 4px;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+
+        .color-preset:hover {
+            border-color: #ffffff;
+        }
+
+        /* Field Controls */
+        .fields-container {
+            margin-top: 10px;
+        }
+
+        .field-item {
+            background: #36393f;
+            padding: 10px;
+            margin-bottom: 5px;
+            border-radius: 4px;
+            position: relative;
+        }
+
+        .field-delete {
+            position: absolute;
+            right: 5px;
+            top: 5px;
+            background: #f04747;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Template Controls */
+        .template-controls {
+            margin-bottom: 15px;
+            display: flex;
+            gap: 10px;
+        }
+
+        /* Character Counter */
+        .char-counter {
+            font-size: 12px;
+            color: #dcddde;
+            text-align: right;
+            margin-top: 4px;
+        }
+
+        .message-title-container {
+            position: relative;
+            margin-bottom: 12px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #4f545c; /* Made more visible */
+        }
+        
+        .message-title {
+            font-weight: bold;
+            color: white;
+            margin-bottom: 8px;
+        }
+        
+        /* Footer divider */
+        .message-divider {
+            height: 1px;
+            background: #4f545c; /* Made more visible */
+            margin: 12px 0;
+        }
+
+        /* Preview Styles */
+        .message-preview {
+            background-color: #36393f;
+            padding: 16px;
+            margin: 8px 0;
+            position: relative;
+            border-radius: 4px;
+        }
+
+        .message-author {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+        .message-content-wrapper {
+            display: flex;
+            gap: 16px;
+        }
+        
+        .message-main-content {
+            flex: 1;
+        }
+        
+        .message-thumbnail {
+            flex-shrink: 0;
+            width: 80px;
+            height: 80px;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .message-thumbnail img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .message-image {
+            margin-top: 16px;
+            max-width: 100%;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .message-image img {
+            max-width: 100%;
+            height: auto;
+        }
+        
+        .field-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-top: 16px;
+        }
+        
+        .field-inline {
+            grid-column: span 1;
+        }
+        
+        .message-footer {
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #dcddde;
+            font-size: 12px;
+        }
+        
+        .footer-icon {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+        }
+        
+        .timestamp {
+            color: #72767d;
+            margin-left: auto;
+        }
+
+        .author-icon {
+            width: 200px;
+            height: 24px;
+            border-radius: 0%;
+        }
+
+        .message-field {
+            margin-top: 8px;
+            padding: 8px;
+            background: rgba(0,0,0,0.1);
+            border-radius: 4px;
+        }
+
+        .field-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        /* Button Styles */
+        button {
+            background-color: #7289DA;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+
+        button:hover {
+            background-color: #677BC4;
+        }
+
+        .small-button {
+            padding: 4px 8px;
+            font-size: 12px;
+        }
+
+        /* Emoji Picker */
+        .emoji-picker {
+            background: #2C2F33;
+            border: 1px solid #23272A;
+            border-radius: 4px;
+            padding: 10px;
+            margin-top: 10px;
+            display: none;
+        }
+
+        .emoji-category {
+            margin-bottom: 10px;
+        }
+
+        .emoji-grid {
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            gap: 5px;
+        }
+
+        .emoji-button {
+            background: none;
+            border: none;
+            font-size: 20px;
+            padding: 5px;
+            cursor: pointer;
+            border-radius: 4px;
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+  <div class="container">
+      <div class="webhook-input">
+          <label>Discord Webhook URL:</label>
+          <input type="url" id="webhookUrl" placeholder="Enter webhook URL">
+      </div>
+
+      <div class="template-controls">
+          <input type="text" id="templateName" placeholder="Template name">
+          <button onclick="saveTemplate()">Save Template</button>
+          <select id="templateSelect" onchange="loadTemplate(this.value)">
+              <option value="">Load Template</option>
+          </select>
+      </div>
+
+      <div id="sections">
+          <!-- Sections will be added here -->
+      </div>
+
+      <button onclick="addSection()">Add Section</button>
+      <button onclick="togglePreview()">Toggle Preview</button>
+      <button onclick="sendMessage()">Send Message</button>
+
+      <div id="preview" class="preview"></div>
+  </div>
+
+  <script>
+      // Discord color presets
+      const discordColors = {
+    "Default Blue": "#7289DA",
+    "Green": "#43B581",
+    "Yellow": "#FAA61A",
+    "Red": "#F04747",
+    "Purple": "#593695",
+    "Blurple": "#5865F2"
+};
+
+// Emoji categories
+const emojiCategories = {
+    "Frequently Used": ["📢", "🎮", "⚔️", "🛡️", "✨", "🎉", "📝", "❗", "⚡", "🔥"],
+    "Smileys": ["😀", "😃", "😄", "😁", "😆", "😅", "😂", "🤣", "😊", "😇"],
+    "Objects": ["💻", "📱", "🎨", "🎭", "🎪", "🎯", "🎲", "🎼", "📈", "💡"],
+    "Symbols": ["✅", "❌", "💠", "🔷", "🔶", "♦️", "♠️", "♥️", "♣️", "🔒"]
+};
+
+function createSection() {
+    const section = document.createElement('div');
+    section.className = 'section';
+    section.innerHTML = `
+        <button class="delete-button" onclick="deleteSection(this)">
+            <i class="fas fa-times"></i>
+        </button>
+        <div class="section-controls">
+            <div class="color-controls">
+                <input type="color" value="#43b581" class="color-picker" onchange="updatePreview()">
+                <div class="color-presets">
+                    ${Object.entries(discordColors).map(([name, color]) => 
+                        `<div class="color-preset" style="background-color: ${color}" 
+                            onclick="setColor(this, '${color}')" title="${name}"></div>`
+                    ).join('')}
+                </div>
+            </div>
+            <button onclick="toggleEmojis(this)" title="Insert Emoji">
+                <i class="fas fa-smile"></i>
+            </button>
+        </div>
+
+        <div class="control-group">
+            <label>Author:</label>
+            <input type="text" class="author-name" placeholder="Author name" onchange="updatePreview()">
+            <input type="url" class="author-icon" placeholder="Author icon URL" onchange="updatePreview()">
+        </div>
+
+        <div class="control-group">
+            <label>Title:</label>
+            <input type="text" placeholder="Header/Title" onchange="updatePreview()">
+            <div class="char-counter">0/256</div>
+        </div>
+
+        <div class="control-group">
+            <label>Content:</label>
+            <textarea placeholder="Content" onchange="updatePreview()" oninput="updateCharCount(this)"></textarea>
+            <div class="char-counter">0/4000</div>
+        </div>
+
+        <div class="emoji-picker">
+            ${createEmojiPicker()}
+        </div>
+
+        <div class="embed-controls">
+            <div class="control-group">
+                <label>Thumbnail URL:</label>
+                <input type="url" placeholder="Image URL" class="thumbnail-url" onchange="updatePreview()">
+            </div>
+
+            <div class="control-group">
+                <label>Large Image URL:</label>
+                <input type="url" placeholder="Large image URL" class="image-url" onchange="updatePreview()">
+            </div>
+
+            <div class="control-group">
+                <label>Fields:</label>
+                <button onclick="addField(this)" class="small-button">Add Field</button>
+                <div class="fields-container"></div>
+            </div>
+
+            <div class="control-group">
+                <label>Footer:</label>
+                <input type="text" placeholder="Footer text" class="footer-text" onchange="updatePreview()">
+                <input type="url" placeholder="Footer icon URL" class="footer-icon" onchange="updatePreview()">
+            </div>
+
+            <div class="control-group">
+                <label>Timestamp:</label>
+                <input type="datetime-local" class="timestamp" onchange="updatePreview()">
+            </div>
+        </div>
+    `;
+    return section;
+}
+
+function createEmojiPicker() {
+    let html = '';
+    for (let [category, emojis] of Object.entries(emojiCategories)) {
+        html += `
+            <div class="emoji-category">
+                <h4>${category}</h4>
+                <div class="emoji-grid">
+                    ${emojis.map(emoji => `
+                        <button onclick="insertEmoji('${emoji}', this)">${emoji}</button>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+    }
+    return html;
+}
+
+function toggleEmojis(button) {
+    const section = button.closest('.section');
+    const picker = section.querySelector('.emoji-picker');
+    picker.style.display = picker.style.display === 'none' ? 'block' : 'none';
+}
+
+function insertEmoji(emoji, button) {
+    const section = button.closest('.section');
+    const textarea = section.querySelector('textarea');
+    const pos = textarea.selectionStart;
+    textarea.value = textarea.value.slice(0, pos) + emoji + textarea.value.slice(pos);
+    updatePreview();
+}
+
+function deleteSection(button) {
+    const sectionsContainer = document.getElementById('sections');
+    const section = button.parentElement;
+    
+    if (sectionsContainer.children.length > 1) {
+        section.remove();
+        updatePreview();
+    } else {
+        alert('You must keep at least one section');
+    }
+}
+
+function setColor(element, color) {
+    const section = element.closest('.section');
+    const colorPicker = section.querySelector('.color-picker');
+    colorPicker.value = color;
+    updatePreview();
+}
+
+function addSection() {
+    const sections = document.getElementById('sections');
+    sections.appendChild(createSection());
+    updatePreview();
+}
+
+function addField(button) {
+    const section = button.closest('.section');
+    const container = section.querySelector('.fields-container');
+    const fieldDiv = document.createElement('div');
+    fieldDiv.className = 'field-item';
+    fieldDiv.innerHTML = `
+        <button class="field-delete" onclick="deleteField(this)">
+            <i class="fas fa-times"></i>
+        </button>
+        <input type="text" placeholder="Field name" class="field-name" onchange="updatePreview()">
+        <textarea placeholder="Field value" class="field-value" onchange="updatePreview()"></textarea>
+        <label>
+            <input type="checkbox" class="field-inline" onchange="updatePreview()"> Inline
+        </label>
+    `;
+    container.appendChild(fieldDiv);
+    updatePreview();
+}
+
+function deleteField(button) {
+    button.closest('.field-item').remove();
+    updatePreview();
+}
+
+function updateCharCount(element) {
+    const counter = element.nextElementSibling;
+    const max = element.tagName === 'TEXTAREA' ? 4000 : 256;
+    counter.textContent = `${element.value.length}/${max}`;
+    counter.style.color = element.value.length > max ? '#f04747' : '#dcddde';
+}
+
+function togglePreview() {
+    const preview = document.getElementById('preview');
+    preview.style.display = preview.style.display === 'none' ? 'block' : 'none';
+    updatePreview();
+}
+
+function updatePreview() {
+    const preview = document.getElementById('preview');
+    const sections = document.querySelectorAll('.section');
+    preview.innerHTML = '';
+    
+    sections.forEach(section => {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = 'message-preview';
+        const color = section.querySelector('.color-picker').value;
+        messageDiv.style.borderLeft = `4px solid ${color}`;
+        
+        // Author
+        const authorName = section.querySelector('.author-name').value;
+        const authorIcon = section.querySelector('.author-icon').value;
+        if (authorName) {
+            const authorDiv = document.createElement('div');
+            authorDiv.className = 'message-author';
+            if (authorIcon) {
+                authorDiv.innerHTML += `<img src="${authorIcon}" class="author-icon">`;
+            }
+            authorDiv.innerHTML += `<span>${authorName}</span>`;
+            messageDiv.appendChild(authorDiv);
+        }
+
+        // Title and Content
+        const title = section.querySelector('input[placeholder="Header/Title"]').value;
+        const content = section.querySelector('textarea').value;
+        
+        if (title) {
+            const titleContainer = document.createElement('div');
+            titleContainer.className = 'message-title-container';
+            
+            const titleDiv = document.createElement('div');
+            titleDiv.className = 'message-title';
+            titleDiv.textContent = title;
+            
+            titleContainer.appendChild(titleDiv);
+            messageDiv.appendChild(titleContainer);
+        }
+        
+        if (content) {
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'message-content';
+            contentDiv.textContent = content;
+            messageDiv.appendChild(contentDiv);
+        }
+
+        // Fields
+        const fields = section.querySelectorAll('.field-item');
+        if (fields.length > 0) {
+            const fieldsDiv = document.createElement('div');
+            fieldsDiv.className = 'field-grid';
+            fields.forEach(field => {
+                const fieldName = field.querySelector('.field-name').value;
+                const fieldValue = field.querySelector('.field-value').value;
+                if (fieldName && fieldValue) {
+                    const fieldDiv = document.createElement('div');
+                    fieldDiv.className = 'message-field';
+                    fieldDiv.innerHTML = `<strong>${fieldName}</strong><br>${fieldValue}`;
+                    fieldsDiv.appendChild(fieldDiv);
+                }
+            });
+            messageDiv.appendChild(fieldsDiv);
+        }
+
+        // Footer
+        const footerText = section.querySelector('.footer-text').value;
+        const footerIcon = section.querySelector('.footer-icon').value;
+        const timestamp = section.querySelector('.timestamp').value;
+        
+        if (footerText || footerIcon || timestamp) {
+            const divider = document.createElement('div');
+            divider.className = 'message-divider';
+            messageDiv.appendChild(divider);
+        
+            const footerDiv = document.createElement('div');
+            footerDiv.className = 'message-footer';
+            
+            if (footerIcon) {
+                footerDiv.innerHTML += `<img src="${footerIcon}" class="footer-icon" alt="Footer Icon">`;
+            }
+            
+            if (footerText) {
+                footerDiv.innerHTML += `<span>${footerText}</span>`;
+            }
+            
+            if (timestamp) {
+                footerDiv.innerHTML += `<span class="timestamp">${new Date(timestamp).toLocaleString()}</span>`;
+            }
+            
+            messageDiv.appendChild(footerDiv);
+        }
+        
+                preview.appendChild(messageDiv);
+            });
+        }
+
+function sendMessage() {
+    const webhookUrl = document.getElementById('webhookUrl').value;
+    if (!webhookUrl) {
+        alert('Please enter a Discord webhook URL');
+        return;
+    }
+
+    const sections = document.querySelectorAll('.section');
+    const embeds = [];
+    
+    sections.forEach(section => {
+        const embed = {
+            title: section.querySelector('input[placeholder="Header/Title"]').value,
+            description: section.querySelector('textarea').value,
+            color: parseInt(section.querySelector('.color-picker').value.replace('#', ''), 16),
+            fields: Array.from(section.querySelectorAll('.field-item'))
+                .map(field => ({
+                    name: field.querySelector('.field-name').value,
+                    value: field.querySelector('.field-value').value,
+                    inline: field.querySelector('.field-inline').checked
+                }))
+                .filter(field => field.name && field.value)
+        };
+
+        const authorName = section.querySelector('.author-name').value;
+        if (authorName) {
+            embed.author = {
+                name: authorName,
+                icon_url: section.querySelector('.author-icon').value
+            };
+        }
+
+        const thumbnailUrl = section.querySelector('.thumbnail-url').value;
+        if (thumbnailUrl) {
+            embed.thumbnail = { url: thumbnailUrl };
+        }
+
+        const imageUrl = section.querySelector('.image-url').value;
+        if (imageUrl) {
+            embed.image = { url: imageUrl };
+        }
+
+        const footerText = section.querySelector('.footer-text').value;
+        if (footerText) {
+            embed.footer = {
+                text: footerText,
+                icon_url: section.querySelector('.footer-icon').value
+            };
+        }
+
+        const timestamp = section.querySelector('.timestamp').value;
+        if (timestamp) {
+            embed.timestamp = new Date(timestamp).toISOString();
+        }
+
+        embeds.push(embed);
+    });
+
+    fetch(webhookUrl, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ embeds })
+    })
+    .then(response => {
+        if (!response.ok) throw new Error('Failed to send message');
+        alert('Message sent successfully!');
+    })
+    .catch(error => {
+        alert('Error sending message: ' + error.message);
+    });
+}
+
+// Initialize with 5 sections
+window.addEventListener('load', function() {
+    const sections = document.getElementById('sections');
+    sections.innerHTML = ''; // Clear any existing sections
+    for (let i = 0; i < 5; i++) {
+        addSection();
+    }
+});
+
+// Update preview when content changes
+document.addEventListener('input', updatePreview);
+    </script>
+</body>
+</html>
